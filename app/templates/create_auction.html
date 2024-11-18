@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crea una nuova asta</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_create_auction.css') }}">
+</head>
+<body>
+    <header>
+    <div class="logo">AsteOnline</div>
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('main.home') }}">Home</a></li>
+            <li><a href="{{ url_for('main.create_auction') }}" class="active">Crea Asta</a></li>
+            <li><a href="{{ url_for('main.won_auctions') }}">Aste vinte</a></li>
+            <li><a href="{{ url_for('main.my_auctions') }}">Le Mie Aste</a></li>
+            <li><a href="{{ url_for('main.logout') }}">Logout</a></li>
+        </ul>
+    </nav>
+</header>
+
+    <main>
+        <div class="auction-form-container">
+            <h2>Crea una nuova asta</h2>
+            <form id="auctionForm" action="{{ url_for('main.create_auction') }}" method="POST" enctype="multipart/form-data">
+                <label for="title">Titolo:</label>
+                <input type="text" id="title" name="title" required>
+
+                <label for="description">Descrizione:</label>
+                <textarea id="description" name="description" rows="4" required></textarea>
+
+                <label for="starting_price">Prezzo iniziale:</label>
+                <input type="number" id="starting_price" name="starting_price" step="0.01" required>
+
+                <label for="end_time">Data e ora di scadenza:</label>
+                <input type="datetime-local" id="end_time" name="end_time" required>
+
+                <div class="file-upload-container">
+                    <span class="file-upload-text">Carica foto (max 5)</span>
+                    <input type="file" id="images" name="images" accept="image/*" multiple>
+                    <div id="image-preview" class="image-preview">
+                        <span id="add-image-btn" class="add-image-btn">+</span>
+                    </div>
+                </div>
+
+                <button type="submit">Crea asta</button>
+            </form>
+        </div>
+    </main>
+    <footer>
+    <div class="footer-links">
+        <a href="#">Contatti</a>
+        <a href="#">Termini di Servizio</a>
+        <a href="#">Privacy Policy</a>
+    </div>
+    <div class="social-media">
+        <a href="#">FB</a>
+        <a href="#">TW</a>
+        <a href="#">IG</a>
+    </div>
+</footer>
+
+
+    <script>
+        const fileInput = document.getElementById('images');
+        const previewContainer = document.getElementById('image-preview');
+        const addImageBtn = document.getElementById('add-image-btn');
+        const endTimeInput = document.getElementById('end_time');
+
+        let filesList = [];
+
+        fileInput.addEventListener('change', function(event) {
+            const newFiles = Array.from(event.target.files);
+            const existingImages = previewContainer.querySelectorAll('.img-container').length;
+
+            console.log('lista:' + filesList.length)
+            if (filesList.length + 1 > 5) {
+                alert('Puoi caricare al massimo 5 immagini.');
+                return;
+            }
+
+            filesList = filesList.concat(newFiles);
+
+            newFiles.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imgContainer = document.createElement('div');
+                    imgContainer.classList.add('img-container');
+
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.classList.add('preview-img');
+
+                    const removeBtn = document.createElement('button');
+                    removeBtn.classList.add('remove-img-btn');
+                    removeBtn.innerHTML = '&times;';
+
+                    removeBtn.onclick = function() {
+                        const indexToRemove = Array.from(previewContainer.children).indexOf(imgContainer);
+                        previewContainer.removeChild(imgContainer);
+                        filesList.splice(indexToRemove, 1);
+                        if (previewContainer.children.length < 6) {
+                            addImageBtn.style.display = 'flex';
+                        }
+                    };
+
+                    imgContainer.appendChild(img);
+                    imgContainer.appendChild(removeBtn);
+                    previewContainer.insertBefore(imgContainer, addImageBtn);
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
+        addImageBtn.addEventListener('click', function() {
+            fileInput.click();
+        });
+
+        const form = document.getElementById('auctionForm');
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(form);
+
+            filesList.forEach((file, index) => {
+                formData.append(`images[${index}]`, file);
+            });
+
+            fetch(form.action, {
+                method: form.method,
+                body: formData,
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('Asta creata con successo!');
+                    window.location.href = "{{ url_for('main.home') }}";
+                } else {
+                    alert('Errore nella creazione dell\'asta.');
+                }
+            })
+            .catch(error => {
+                console.error('Errore:', error);
+                alert('Errore nella connessione al server.');
+            });
+        });
+
+        function setMinDateTime() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+
+            const minDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+            endTimeInput.min = minDateTime;
+        }
+
+        endTimeInput.addEventListener('input', function() {
+            const now = new Date();
+            const selectedDate = new Date(endTimeInput.value);
+
+            if (selectedDate.toDateString() === now.toDateString()) {
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const minTimeToday = `${hours}:${minutes}`;
+
+                const [selectedHours, selectedMinutes] = endTimeInput.value.split('T')[1].split(':');
+
+                if (selectedHours < hours || (selectedHours === hours && selectedMinutes < minutes)) {
+                    endTimeInput.value = `${endTimeInput.value.split('T')[0]}T${minTimeToday}`;
+                }
+            }
+        });
+
+        window.onload = setMinDateTime;
+    </script>
+</body>
+</html>

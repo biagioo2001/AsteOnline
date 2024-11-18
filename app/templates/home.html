@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Aste Online</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_home.css') }}">
+    <script src="{{ url_for('static', filename='js/scripts.js') }}" defer></script>
+</head>
+<body>
+    <!-- Navbar -->
+    <header>
+        <div class="logo">AsteOnline</div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('main.home') }}" class="active">Home</a></li>
+                <li><a href="{{ url_for('main.create_auction') }}">Crea Asta</a></li>
+                <li><a href="{{ url_for('main.won_auctions') }}">Aste vinte</a></li>
+                <li><a href="{{ url_for('main.my_auctions') }}">Le Mie Aste</a></li>
+                <li><a href="{{ url_for('main.logout') }}">Logout</a></li>
+            </ul>
+        </nav>
+        <div class="user-info">
+            <div class="user-name">Benvenuto, {{ user_name }}</div>
+            <div class="user-credit">Disponibilità economica: €{{ user_credit }}</div>
+        </div>
+    </header>
+
+    <!-- Main content -->
+    <main>
+        <section class="slider">
+            <!-- Aggiungi qui eventuali slider o immagini in evidenza -->
+        </section>
+
+        <section class="aste-corso">
+            <h2>Aste in Corso</h2>
+            <div class="aste-grid">
+    {% for auction in auctions %}
+        {% if auction.seller != user_name %}
+        <div class="asta-item">
+            {% if auction.images %}
+            <img src="{{ url_for('main.get_image', file_id=auction.images[0]) }}" alt="Asta Immagine" class="asta-image">
+            {% endif %}
+            <div class="asta-info">
+                <h3>{{ auction.title }}</h3>
+                <p class="description">{{ auction.description }}</p>
+                <p class="price">
+                    {% if auction.highest_bid and auction.highest_bid > 0 %}
+                        L'ultima offerta è: €{{ auction.highest_bid }}
+                    {% else %}
+                        Prezzo di partenza: €{{ auction.startPrice }}
+                    {% endif %}
+                </p>
+
+                <p>Tempo rimanente: <span class="countdown" data-end="{{ auction.end_time }}"></span></p>
+                <div class="auction-button-container">
+                    <a href="{{ url_for('main.auction_details', auction_index=loop.index0) }}">
+                        <button class="auction-button">Dettagli Asta</button>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    {% endfor %}
+</div>
+
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-links">
+            <a href="#">Contatti</a>
+            <a href="#">Termini di Servizio</a>
+            <a href="#">Privacy Policy</a>
+        </div>
+        <div class="social-media">
+            <a href="#">FB</a>
+            <a href="#">TW</a>
+            <a href="#">IG</a>
+        </div>
+    </footer>
+</body>
+</html>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const countdownElements = document.querySelectorAll('.countdown');
+
+    function updateCountdown() {
+
+        let isAuctionExpired = false;  // Flag per controllare se un'asta è scaduta
+
+        countdownElements.forEach(element => {
+            const endTime = new Date(element.getAttribute('data-end'));
+            const now = new Date();
+            const timeDiff = endTime - now;
+
+            if (timeDiff <= 0) {
+                element.textContent = '00d 00h 00m 00s';
+                isAuctionExpired = true; // Un'asta è scaduta
+                return;
+            }
+
+            const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+            element.textContent = `${days}d ${String(hours).padStart(2, '0')}h ${String(minutes).padStart(2, '0')}m ${String(seconds).padStart(2, '0')}s`;
+        });
+
+        // Ricarica la pagina se un'asta è scaduta
+        if (isAuctionExpired) {
+            location.reload(); // Ricarica la pagina
+        }
+    }
+
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+});
+</script>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dettagli Asta - {{ auction.title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_details.css') }}">
+    <!-- Include Swiper CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
+</head>
+<body>
+    <!-- Navbar -->
+    <header>
+        <div class="logo">AsteOnline</div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('main.home') }}">Home</a></li>
+                <li><a href="{{ url_for('main.create_auction') }}">Crea Asta</a></li>
+                <li><a href="{{ url_for('main.my_auctions') }}">Aste vinte</a></li>
+                <li><a href="{{ url_for('main.logout') }}">Logout</a></li>
+            </ul>
+        </nav>
+        <div class="user-info">
+            <div class="user-name">Account: {{ user_name }}</div>
+            <div class="user-credit">Disponibilità economica: €{{ user_credit }}</div>
+        </div>
+    </header>
+
+    <!-- Main content -->
+    <main>
+        <section class="auction-details">
+            <h1>{{ auction.title }}</h1>
+
+            <!-- Swiper Slider for Images -->
+            <div class="swiper-container">
+                <div class="swiper-wrapper">
+                    {% for image in auction.images %}
+                        <div class="swiper-slide">
+                            <img src="{{ url_for('main.get_image', file_id=image) }}" alt="Immagine Asta">
+                        </div>
+                    {% endfor %}
+                </div>
+                <!-- Add Pagination -->
+                <div class="swiper-pagination"></div>
+                <!-- Add Navigation -->
+                <div class="swiper-button-next"></div>
+                <div class="swiper-button-prev"></div>
+            </div>
+
+            <div class="auction-info">
+                <p><strong>Descrizione:</strong> {{ auction.description }}</p>
+                <p><strong>Prezzo di partenza:</strong> €{{ auction.startPrice }}</p>
+                <p><strong>Ultima offerta:</strong> €{{ auction.highest_bid }}</p>
+                <p><strong>Data di scadenza:</strong> <span id="countdown" data-end="{{ auction.end_time }}"></span></p>
+                <p><strong>Venditore:</strong> {{ auction.seller }}</p>
+                {% if auction.highest_bidder %}
+                    <p><strong>Offerente più alto:</strong> {{ auction.highest_bidder }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Sezione per fare un'offerta -->
+            <section class="place-bid">
+                {% if auction.seller != user_name %}
+                    <h2>Fai un'offerta</h2>
+                    <form action="{{ url_for('main.place_bid', auction_index=auction_index) }}" method="POST" id="bid-form">
+                        <label for="bid_amount">Importo dell'offerta:</label>
+                        <input type="number" id="bid_amount" name="bid_amount" step="0.01" min="{{ auction.highest_bid | float + 1 }}" required>
+                        <button type="submit">Fai un'offerta</button>
+                    </form>
+                    <div id="expired-message" style="display: none;">Tempo scaduto</div>
+                {% endif %}
+            </section>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-links">
+            <a href="#">Contatti</a>
+            <a href="#">Termini di Servizio</a>
+            <a href="#">Privacy Policy</a>
+        </div>
+        <div class="social-media">
+            <a href="#">FB</a>
+            <a href="#">TW</a>
+            <a href="#">IG</a>
+        </div>
+    </footer>
+
+    <!-- Include Swiper JS -->
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/scripts.js') }}" defer></script>
+    <script>
+        // Inizializza Swiper
+        document.addEventListener('DOMContentLoaded', function () {
+            const swiper = new Swiper('.swiper-container', {
+                loop: true,
+                pagination: {
+                    el: '.swiper-pagination',
+                    clickable: true,
+                },
+                navigation: {
+                    nextEl: '.swiper-button-next',
+                    prevEl: '.swiper-button-prev',
+                },
+                slidesPerView: 1,
+                spaceBetween: 10,
+            });
+        });
+
+        // Countdown Timer
+        document.addEventListener('DOMContentLoaded', function () {
+            const countdownElement = document.getElementById('countdown');
+            const bidForm = document.getElementById('bid-form');
+            const expiredMessage = document.getElementById('expired-message');
+
+            function updateCountdown() {
+                const endTimeString = countdownElement.getAttribute('data-end');
+                const endTime = new Date(endTimeString);
+                const now = new Date();
+                const timeDiff = endTime - now;
+
+                if (timeDiff <= 0) {
+                    countdownElement.textContent = '00d 00h 00m 00s';
+                    if (bidForm) {
+                        bidForm.style.display = 'none';
+                    }
+                    if (expiredMessage) {
+                        expiredMessage.style.display = 'block';
+                    }
+                    return;
+                }
+
+                const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+                countdownElement.textContent = `${days}d ${String(hours).padStart(2, '0')}h ${String(minutes).padStart(2, '0')}m ${String(seconds).padStart(2, '0')}s`;
+            }
+
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+        });
+
+        // Verifica credito utente
+        document.addEventListener('DOMContentLoaded', function () {
+            const bidForm = document.querySelector('form');
+            const bidInput = document.getElementById('bid_amount');
+            const userCredit = {{ user_credit | float }};
+            const highestBid = {{ auction.highest_bid | float }};
+
+            bidForm.addEventListener('submit', function (event) {
+                const bidValue = parseFloat(bidInput.value);
+                if (bidValue > userCredit) {
+                    event.preventDefault();
+                    alert('Non puoi fare un\'offerta superiore alla tua disponibilità economica.');
+                } else if (bidValue <= highestBid) {
+                    event.preventDefault();
+                    alert('L\'offerta deve essere superiore all\'offerta corrente.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

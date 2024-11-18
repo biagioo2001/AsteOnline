@@ -1,0 +1,110 @@
+/* app/static/css/styles.css */
+
+/* Background Image and Layout */
+.bg-image {
+    background: url('/static/foto/SfondoAzioni.jpg') no-repeat center center fixed;
+    background-size: cover;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center; /* Centro anche orizzontalmente */
+}
+
+/* Centering the Login Card */
+.login-card {
+    width: 100%;
+    max-width: 450px; /* Maggiore larghezza per una card più ampia */
+    margin: 0 auto; /* Centro orizzontalmente */
+}
+
+/* Card and Form Styles */
+.card {
+    background-color: rgba(255, 255, 255, 0.95); /* Più opaco per una migliore leggibilità */
+    border-radius: 20px; /* Angoli più arrotondati per un look più moderno */
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25); /* Ombra più pronunciata */
+    padding: 2rem;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+h2 {
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 1.5rem; /* Maggiore spazio sotto il titolo */
+}
+
+/* Input Fields */
+input.form-control {
+    border: 2px solid #ddd;
+    border-radius: 12px; /* Angoli arrotondati per gli input */
+    padding: 0.75rem 1.25rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    margin-bottom: 1rem; /* Spazio tra i campi */
+}
+
+input.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+    outline: none;
+}
+
+/* Button */
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+    border-radius: 12px; /* Angoli arrotondati per il pulsante */
+    padding: 0.75rem 1.25rem;
+    font-size: 1.125rem;
+    transition: background-color 0.3s, transform 0.2s;
+    margin-top: 1.5rem; /* Maggiore spazio sopra il pulsante */
+    display: block; /* Blocca il pulsante per centrarlo */
+    width: 100%; /* Pulsante a larghezza intera della card */
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+/* Register Link */
+.text-center.mt-3 a {
+    color: #007bff;
+    font-size: 0.875rem;
+    text-decoration: none;
+    display: block; /* Blocca il link per centrarlo */
+    margin-top: 1rem; /* Maggiore spazio sopra il link */
+}
+
+.text-center.mt-3 a:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+/* Alert Styles */
+.alert {
+    border-radius: 5px;
+    margin-bottom: 1rem; /* Spazio sotto l'alert */
+}
+
+/* Welcome Section */
+.welcome-section {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #fff;
+    text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+    text-align: center;
+}
+
+.welcome-section h1 {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+}
+
+.welcome-section p {
+    font-size: 1.25rem;
+}

@@ -1,0 +1,5 @@
+Flask==2.3.0
+celery==5.2.7  # Versione stabile
+billiard==3.6.4.0  # Gestione pool per Celery
+kombu==5.2.4  # Gestione della messaggistica
+redis==4.3.5  # Se stai usando Redis come broker

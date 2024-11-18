@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aste Vinte - Aste Online</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_won_auctions.css') }}">
+    <style>
+        /* Stile per il modale */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <header>
+        <div class="logo">AsteOnline</div>
+        <nav>
+            <ul>
+                  <li><a href="{{ url_for('main.home') }}">Home</a></li>
+                <li><a href="{{ url_for('main.create_auction') }}">Crea Asta</a></li>
+                <li><a href="{{ url_for('main.won_auctions') }}" class="active">Aste vinte</a></li>
+                <li><a href="{{ url_for('main.my_auctions') }}">Le Mie Aste</a></li>
+                <li><a href="{{ url_for('main.logout') }}">Logout</a></li>
+            </ul>
+        </nav>
+        <div class="user-info">
+            <div class="user-name">Account: {{ user_name }}</div>
+            <div class="user-credit">Disponibilità economica: €{{ user_credit }}</div>
+        </div>
+    </header>
+
+    <!-- Main content -->
+    <main>
+        <section class="won-auctions">
+            <h2>Le Tue Aste Vinte</h2>
+            <div class="won-auctions-list">
+                {% for auction in won_auctions | reverse %}
+                <div class="won-auction-item" onclick="openModal({{ loop.index0 }})">
+                    <div class="won-auction-image">
+                        {% if auction.images %}
+                        <img src="{{ url_for('main.get_image', file_id=auction.images[0]) }}" alt="Immagine Asta" class="auction-image">
+                        {% endif %}
+                    </div>
+                    <div class="won-auction-info">
+                        <h3>{{ auction.title }}</h3>
+                        <p class="auction-description">{{ auction.description }}</p>
+                        <p class="auction-final-price">Offerta Vincente: €{{ auction.final_price }}</p>
+                        <p class="auction-won-date">Asta terminata il: {{ auction.end_time }}</p>
+                    </div>
+                </div>
+                {% else %}
+                <p>Non hai ancora vinto nessuna asta.</p>
+                {% endfor %}
+            </div>
+        </section>
+    </main>
+
+    <!-- Modale per i dettagli dell'asta -->
+    <div id="auctionModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3 id="modal-title"></h3>
+            <p id="modal-description"></p>
+            <p id="modal-final-price"></p>
+            <p id="modal-end-time"></p>
+            <p id="modal-seller"></p>
+            <div id="modal-images"></div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-links">
+            <a href="#">Contatti</a>
+            <a href="#">Termini di Servizio</a>
+            <a href="#">Privacy Policy</a>
+        </div>
+        <div class="social-media">
+            <a href="#">FB</a>
+            <a href="#">TW</a>
+            <a href="#">IG</a>
+        </div>
+    </footer>
+
+    <script>
+        // Dettagli aste come array di oggetti
+        const auctions = {{ won_auctions|tojson }};
+
+        function openModal(index) {
+            const auction = auctions[index]; // Usa l'indice per trovare l'asta selezionata
+
+            document.getElementById('modal-title').innerText = auction.title;
+            document.getElementById('modal-description').innerText = auction.description;
+            document.getElementById('modal-final-price').innerText = 'Offerta Vincente: €' + auction.final_price;
+            document.getElementById('modal-end-time').innerText = 'Asta terminata il: ' + auction.end_time;
+            document.getElementById('modal-seller').innerText = 'Venditore: ' + auction.seller;
+
+            // Mostra tutte le immagini
+            var imagesContainer = document.getElementById('modal-images');
+            imagesContainer.innerHTML = '';
+            auction.images.forEach(function(image) {
+                var imgElement = document.createElement('img');
+                imgElement.src = "{{ url_for('main.get_image', file_id='') }}" + image;
+                imgElement.style.width = '100px';
+                imgElement.style.margin = '10px';
+                imagesContainer.appendChild(imgElement);
+            });
+
+            // Mostra il modale
+            document.getElementById('auctionModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('auctionModal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            var modal = document.getElementById('auctionModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,234 @@
+/* Header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    background-color: #1a1a1a;
+    color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.logo {
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+nav ul {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+nav ul li {
+    margin: 0 20px;
+}
+
+nav ul li a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 18px;
+    font-weight: 600;
+    transition: color 0.3s, border-bottom 0.3s;
+    padding-bottom: 8px;
+    border-bottom: 2px solid transparent;
+}
+
+nav ul li a:hover, nav ul li a:focus {
+    color: #e74c3c;
+    border-bottom: 2px solid #e74c3c;
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.user-name, .user-credit {
+    margin: 5px 0;
+    font-size: 18px;
+}
+
+.user-name {
+    font-weight: bold;
+    color: #e74c3c;
+}
+
+.user-credit {
+    color: #fff;
+}
+
+/* Main Content */
+main {
+    padding: 40px;
+    background-color: #f9f9f9;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.auction-details {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    max-width: 100%;
+}
+
+/* Swiper Section */
+.swiper-container {
+    width: 100%;
+    height: 350px; /* Altezza ridotta per una visualizzazione più compatta */
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.swiper-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Garantisce che le immagini siano proporzionate senza tagliarle */
+    border-radius: 10px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.swiper-slide img:hover {
+    transform: scale(1.02); /* Effetto zoom su hover */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Leggera ombra su hover */
+}
+
+/* Anteprime Immagini */
+.image-thumbnails {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.thumbnail {
+    width: 80px;
+    height: 80px;
+    margin: 0 10px;
+    cursor: pointer;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    transition: border-color 0.3s ease;
+}
+
+.thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Per immagini di anteprima tagliate correttamente */
+    border-radius: 8px;
+}
+
+.thumbnail:hover {
+    border-color: #e74c3c; /* Highlight su hover */
+}
+
+/* Swiper Controls */
+.swiper-button-next, .swiper-button-prev {
+    color: #e74c3c;
+    font-size: 24px;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.swiper-button-next {
+    right: 10px;
+}
+
+.swiper-button-prev {
+    left: 10px;
+}
+
+.swiper-pagination-bullet {
+    background: #e74c3c;
+}
+
+/* Sezione per fare un'offerta */
+.place-bid {
+    margin-top: 20px;
+}
+
+.place-bid h2 {
+    font-size: 24px;
+    color: #e74c3c;
+}
+
+.place-bid form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.place-bid input {
+    padding: 10px;
+    font-size: 18px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.place-bid button {
+    background-color: #e74c3c;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.place-bid button:hover {
+    background-color: #c0392b;
+}
+
+/* Footer */
+footer {
+    background-color: #1a1a1a;
+    color: #fff;
+    padding: 40px;
+    text-align: center;
+    border-top: 1px solid #333;
+}
+
+.footer-links, .social-media {
+    margin: 15px 0;
+}
+
+.footer-links a, .social-media a {
+    color: #fff;
+    text-decoration: none;
+    margin: 0 20px;
+    font-size: 18px;
+    transition: color 0.3s;
+}
+
+.footer-links a:hover, .social-media a:hover {
+    color: #e74c3c;
+}
+
+.social-media a {
+    font-size: 28px;
+}
+
+/* Countdown Timer */
+#countdown {
+    font-size: 18px;
+    font-weight: bold;
+    color: #e74c3c;
+}
+
+/* Media Queries per garantire che il layout sia responsive */
+@media (max-width: 768px) {
+    .swiper-container {
+        height: 250px; /* Riduzione ulteriore per schermi piccoli */
+    }
+
+    .thumbnail {
+        width: 60px;
+        height: 60px;
+    }
+}

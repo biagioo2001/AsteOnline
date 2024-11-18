@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Le Mie Aste - Aste Online</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_my_auctions.css') }}">
+    <script src="{{ url_for('static', filename='js/scripts.js') }}" defer></script>
+</head>
+<body>
+    <!-- Navbar -->
+    <header>
+        <div class="logo">AsteOnline</div>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('main.home') }}">Home</a></li>
+                <li><a href="{{ url_for('main.create_auction') }}">Crea Asta</a></li>
+                <li><a href="{{ url_for('main.won_auctions') }}">Aste vinte</a></li>
+                <li><a href="{{ url_for('main.my_auctions') }}" class="active">Le Mie Aste</a></li>
+                <li><a href="{{ url_for('main.logout') }}">Logout</a></li>
+            </ul>
+        </nav>
+        <div class="user-info">
+            <div class="user-name">Account: {{ user_name }}</div>
+            <div class="user-credit">Disponibilità economica: €{{ user_credit }}</div>
+        </div>
+    </header>
+
+    <!-- Main content -->
+    <main>
+        <h1>Le Mie Aste</h1>
+
+        <section class="aste-section">
+            <h2 class="collapsible" data-target="active-auctions">Aste Attive</h2>
+            <div id="active-auctions" class="aste-content" style="display:none;">
+                <div class="aste-grid">
+                    {% if active_auctions %}
+                        {% for auction in active_auctions %}
+                            <div class="asta-item">
+                                {% if auction.images %}
+                                    <img src="{{ url_for('main.get_image', file_id=auction.images[0]) }}" alt="Asta Immagine" class="asta-image">
+                                {% endif %}
+                                <div class="asta-info">
+                                    <h3>{{ auction.title }}</h3>
+                                    <p class="description">{{ auction.description }}</p>
+                                    <p class="price">Ultima offerta: €{{ auction.highest_bid }}</p>
+                                    <p>Tempo rimanente: <span class="countdown" data-end="{{ auction.end_time }}"></span></p>
+                                    <div class="auction-button-container">
+                                        <a href="{{ url_for('main.auction_details', auction_index=loop.index0) }}">
+                                            <button class="auction-button">Dettagli Asta</button>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p>Nessuna asta attiva.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+
+        <section class="aste-section">
+            <h2 class="collapsible" data-target="sold-auctions">Aste Vendute</h2>
+            <div id="sold-auctions" class="aste-content" style="display:none;">
+                <div class="aste-grid">
+                    {% if sold_auctions %}
+                        {% for auction in sold_auctions %}
+                            <div class="asta-item">
+                                {% if auction.images %}
+                                    <img src="{{ url_for('main.get_image', file_id=auction.images[0]) }}" alt="Asta Immagine" class="asta-image">
+                                {% endif %}
+                                <div class="asta-info">
+                                    <h3>{{ auction.title }}</h3>
+                                    <p class="price">Ultima offerta: €{{ auction.highest_bid }}</p>
+                                    <p>Acquirente: {{ auction.highest_bidder }}</p>
+                                    <p>Data di fine: {{ auction.end_time }}</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p>Nessuna asta venduta.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+
+        <section class="aste-section">
+            <h2 class="collapsible" data-target="unsold-auctions">Aste Invendute</h2>
+            <div id="unsold-auctions" class="aste-content" style="display:none;">
+                <div class="aste-grid">
+                    {% if unsold_auctions %}
+                        {% for auction in unsold_auctions %}
+                            <div class="asta-item">
+                                {% if auction.images %}
+                                    <img src="{{ url_for('main.get_image', file_id=auction.images[0]) }}" alt="Asta Immagine" class="asta-image">
+                                {% endif %}
+                                <div class="asta-info">
+                                    <h3>{{ auction.title }}</h3>
+                                    <p class="price">Prezzo di partenza: €{{ auction.startPrice }}</p>
+                                    <p>Data di fine: {{ auction.end_time }}</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p>Nessuna asta invenduta.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-links">
+            <a href="#">Contatti</a>
+            <a href="#">Termini di Servizio</a>
+            <a href="#">Privacy Policy</a>
+        </div>
+        <div class="social-media">
+            <a href="#">FB</a>
+            <a href="#">TW</a>
+            <a href="#">IG</a>
+        </div>
+    </footer>
+
+    <script>
+document.addEventListener('DOMContentLoaded', function () {
+    const collapsibles = document.querySelectorAll('.collapsible');
+    const countdownElements = document.querySelectorAll('.countdown');
+    let reloadCalled = false; // Aggiungi il flag qui
+
+    // Countdown timer function
+    function updateCountdown() {
+        countdownElements.forEach(element => {
+            const endTimeString = element.getAttribute('data-end');
+            console.log(`End time string: ${endTimeString}`); // Log della data di fine
+            const endTime = new Date(endTimeString);
+            const now = new Date();
+            console.log(`End time : ${endTime}`);
+            console.log(`Time string now: ${now}`);
+            const timeDiff = endTime - now;
+
+            if (isNaN(endTime.getTime())) {
+                console.error(`Invalid date: ${endTimeString}`);
+                element.textContent = 'Data non valida';
+                return;
+            }
+
+            if (timeDiff <= 0) {
+                element.textContent = '00d 00h 00m 00s';
+                Reload(); // Richiama il reload quando il timer è finito
+                return;
+            }
+
+            const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+            element.textContent = `${days}d ${String(hours).padStart(2, '0')}h ${String(minutes).padStart(2, '0')}m ${String(seconds).padStart(2, '0')}s`;
+        });
+    }
+
+    // Funzione di reload con flag
+    function Reload() {
+        if (!reloadCalled) { // Controlla se il reload è già stato chiamato
+            reloadCalled = true; // Imposta il flag per evitare reload multipli
+            location.reload(); // Ricarica la pagina
+        }
+    }
+
+    // Collapsible sections
+    collapsibles.forEach(collapsible => {
+        collapsible.addEventListener('click', function () {
+            const targetId = this.getAttribute('data-target');
+            const targetContent = document.getElementById(targetId);
+            const currentlyOpen = document.querySelector('.aste-content[style*="display: block"]');
+
+            // Close currently open section
+            if (currentlyOpen && currentlyOpen !== targetContent) {
+                currentlyOpen.style.display = 'none';
+            }
+
+            // Toggle the clicked section
+            if (targetContent.style.display === 'none') {
+                targetContent.style.display = 'block';
+            } else {
+                targetContent.style.display = 'none';
+            }
+        });
+    });
+
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+});
+
+    </script>
+</body>
+</html>
